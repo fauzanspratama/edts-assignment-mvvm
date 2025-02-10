@@ -10,8 +10,11 @@ import com.dicoding.mymvvm.databinding.ItemDesignTeamBinding
 
 class DesignTeamAdapter : RecyclerView.Adapter<DesignTeamAdapter.ViewHolder>() {
 
+    // Listeners for edit and delete actions
     private var onItemEditClickListener: ((DesignTeam) -> Unit)? = null
     private var onItemDeleteClickListener: ((DesignTeam) -> Unit)? = null
+
+    /** ----------- Public Functions ------------ **/
 
     fun setOnItemEditClickListener(listener: (DesignTeam) -> Unit) {
         onItemEditClickListener = listener
@@ -21,6 +24,8 @@ class DesignTeamAdapter : RecyclerView.Adapter<DesignTeamAdapter.ViewHolder>() {
         onItemDeleteClickListener = listener
     }
 
+    /** ----------- RecyclerView Functions ------------ **/
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemDesignTeamBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
@@ -29,14 +34,17 @@ class DesignTeamAdapter : RecyclerView.Adapter<DesignTeamAdapter.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(item = differ.currentList[position])
+        holder.bind(differ.currentList[position])
     }
 
     override fun getItemCount(): Int = differ.currentList.size
 
+    /** ----------- ViewHolder Class ------------ **/
+
     inner class ViewHolder(private val binding: ItemDesignTeamBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
+        // Binds item data to UI components
         fun bind(item: DesignTeam) {
             binding.run {
                 tvName.text = item.name
@@ -47,7 +55,7 @@ class DesignTeamAdapter : RecyclerView.Adapter<DesignTeamAdapter.ViewHolder>() {
                     onItemEditClickListener?.invoke(item)
                 }
 
-                // Delete button click listener
+                // Delete click listener
                 btnDelete.setOnClickListener {
                     onItemDeleteClickListener?.invoke(item)
                 }
@@ -55,14 +63,14 @@ class DesignTeamAdapter : RecyclerView.Adapter<DesignTeamAdapter.ViewHolder>() {
         }
     }
 
-    private val differCallBack = object : DiffUtil.ItemCallback<DesignTeam>() {
-        override fun areItemsTheSame(
-            oldItem: DesignTeam, newItem: DesignTeam
-        ): Boolean = oldItem.id == newItem.id
+    /** ----------- DiffUtil for List Comparison ------------ **/
 
-        override fun areContentsTheSame(
-            oldItem: DesignTeam, newItem: DesignTeam
-        ): Boolean = oldItem == newItem
+    private val differCallBack = object : DiffUtil.ItemCallback<DesignTeam>() {
+        override fun areItemsTheSame(oldItem: DesignTeam, newItem: DesignTeam): Boolean =
+            oldItem.id == newItem.id
+
+        override fun areContentsTheSame(oldItem: DesignTeam, newItem: DesignTeam): Boolean =
+            oldItem == newItem
     }
 
     val differ = AsyncListDiffer(this, differCallBack)

@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         initAdapter()
         initViewModel()
         initDesignTeam()
-//      initInsertDesignTeam()
+//      initInsertDesignTeam() // Deprecated
         initAddDataButton() // Navigate to the Add Page
         initDeleteAllButton() // Delete all data
     }
@@ -51,8 +51,15 @@ class MainActivity : AppCompatActivity() {
 
         // Handle delete click
         adapter.setOnItemDeleteClickListener { designTeam ->
-            viewModel.delete(designTeam)
-            Toast.makeText(this, "${designTeam.name} deleted!", Toast.LENGTH_SHORT).show()
+            AlertDialog.Builder(this)
+                .setTitle("Delete All")
+                .setMessage("Are you sure you want to delete all records?")
+                .setPositiveButton("Yes") { _, _ ->
+                    viewModel.delete(designTeam)
+                    Toast.makeText(this, "${designTeam.name} deleted!", Toast.LENGTH_SHORT).show()
+                }
+                .setNegativeButton("No", null)
+                .show()
         }
 
         adapter.setOnItemEditClickListener { designTeam ->
