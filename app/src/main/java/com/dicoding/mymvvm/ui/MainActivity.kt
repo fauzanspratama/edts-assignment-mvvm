@@ -1,7 +1,10 @@
 package com.dicoding.mymvvm.ui
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -16,6 +19,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: DesignTeamViewModel
+    private lateinit var adapter: DesignTeamAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,42 +40,75 @@ class MainActivity : AppCompatActivity() {
         initAdapter()
         initViewModel()
         initDesignTeam()
-        initInsertDesignTeam()
+//      initInsertDesignTeam()
+        initAddDataButton() // Navigate to the Add Page
+        initDeleteAllButton() // Delete all data
     }
 
+    private fun initAdapter() {
+        adapter = DesignTeamAdapter()
+        binding.rvDesignTeam.adapter = adapter
+
+        // Handle delete click
+        adapter.setOnItemDeleteClickListener { designTeam ->
+            viewModel.delete(designTeam)
+            Toast.makeText(this, "${designTeam.name} deleted!", Toast.LENGTH_SHORT).show()
+        }
+
+        adapter.setOnItemEditClickListener { designTeam ->
+            val intent = Intent(this, EditDataActivity::class.java).apply {
+                putExtra("EXTRA_ID", designTeam.id)
+                putExtra("EXTRA_NAME", designTeam.name)
+                putExtra("EXTRA_DIVISION", designTeam.division)
+            }
+            startActivity(intent)
+        }
+    }
 
     private fun initViewModel() {
         viewModel.getDesignTeam()
     }
 
-
-    private fun initAdapter() {
-        val adapter = DesignTeamAdapter()
-        binding.rvDesignTeam.adapter = adapter
-    }
-
     private fun initDesignTeam() {
         viewModel.getDesignTeam.observe(this) { result ->
-            val adapter = binding.rvDesignTeam.adapter as DesignTeamAdapter
             adapter.differ.submitList(result)
         }
     }
 
-
     private fun initInsertDesignTeam() {
-        val DesignTeam = listOf(
-            DesignTeam(
-                name = "Rizka Ghinna",
-                division = "UX Engineer"
-            ),
-            DesignTeam(
-                name = "Shidiq Bagus",
-                division = "UX Engineer"
-            )
+        val designTeam = listOf(
+            DesignTeam(name = "Rizka Ghinna", division = "UX Engineer"),
+            DesignTeam(name = "Shidiq Bagus", division = "UX Engineer")
         )
 
-        DesignTeam.forEach {
+        designTeam.forEach {
             viewModel.insert(it)
         }
+    }
+
+    private fun initAddDataButton() {
+        binding.fabAdd.setOnClickListener {
+            val intent = Intent(this, AddDataActivity::class.java)
+            startActivity(intent)
+        }
+    }
+
+    private fun initDeleteAllButton() {
+        binding.btnDeleteAll.setOnClickListener {
+            AlertDialog.Builder(this)
+                .setTitle("Delete All")
+                .setMessage("Are you sure you want to delete all records?")
+                .setPositiveButton("Yes") { _, _ ->
+                    viewModel.deleteAllDesignTeam()
+                    Toast.makeText(this, "All data deleted!", Toast.LENGTH_SHORT).show()
+                }
+                .setNegativeButton("No", null)
+                .show()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.getDesignTeam()
     }
 }

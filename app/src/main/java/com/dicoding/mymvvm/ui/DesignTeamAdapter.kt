@@ -8,14 +8,23 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dicoding.mymvvm.data.local.entity.DesignTeam
 import com.dicoding.mymvvm.databinding.ItemDesignTeamBinding
 
-
 class DesignTeamAdapter : RecyclerView.Adapter<DesignTeamAdapter.ViewHolder>() {
+
+    private var onItemEditClickListener: ((DesignTeam) -> Unit)? = null
+    private var onItemDeleteClickListener: ((DesignTeam) -> Unit)? = null
+
+    fun setOnItemEditClickListener(listener: (DesignTeam) -> Unit) {
+        onItemEditClickListener = listener
+    }
+
+    fun setOnItemDeleteClickListener(listener: (DesignTeam) -> Unit) {
+        onItemDeleteClickListener = listener
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemDesignTeamBinding.inflate(
             LayoutInflater.from(parent.context), parent, false
         )
-
         return ViewHolder(binding)
     }
 
@@ -27,13 +36,20 @@ class DesignTeamAdapter : RecyclerView.Adapter<DesignTeamAdapter.ViewHolder>() {
 
     inner class ViewHolder(private val binding: ItemDesignTeamBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
         fun bind(item: DesignTeam) {
             binding.run {
                 tvName.text = item.name
                 tvDivision.text = item.division
 
-                binding.root.setOnClickListener {
-                    onItemClickListener?.invoke(item)
+                // Edit click listener
+                btnEdit.setOnClickListener {
+                    onItemEditClickListener?.invoke(item)
+                }
+
+                // Delete button click listener
+                btnDelete.setOnClickListener {
+                    onItemDeleteClickListener?.invoke(item)
                 }
             }
         }
@@ -41,24 +57,13 @@ class DesignTeamAdapter : RecyclerView.Adapter<DesignTeamAdapter.ViewHolder>() {
 
     private val differCallBack = object : DiffUtil.ItemCallback<DesignTeam>() {
         override fun areItemsTheSame(
-            oldExampleModel: DesignTeam, newExampleModel: DesignTeam
-        ): Boolean {
-            return oldExampleModel.id == newExampleModel.id
-        }
+            oldItem: DesignTeam, newItem: DesignTeam
+        ): Boolean = oldItem.id == newItem.id
 
         override fun areContentsTheSame(
-            oldExampleModel: DesignTeam, newExampleModel: DesignTeam
-        ): Boolean {
-            return oldExampleModel == newExampleModel
-        }
+            oldItem: DesignTeam, newItem: DesignTeam
+        ): Boolean = oldItem == newItem
     }
 
     val differ = AsyncListDiffer(this, differCallBack)
-
-    private var onItemClickListener: ((DesignTeam) -> Unit)? = null
-
-    fun setOnItemClickListener(listener: (DesignTeam) -> Unit) {
-        onItemClickListener = listener
-    }
-
 }
