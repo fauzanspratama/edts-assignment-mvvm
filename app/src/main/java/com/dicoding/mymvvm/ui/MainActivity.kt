@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         initAdapter()
         initViewModel()
         initDesignTeam()
-//      initInsertDesignTeam() // Deprecated
+        initInsertDesignTeam()
         initAddDataButton() // Navigate to the Add Page
         initDeleteAllButton() // Delete all data
     }
